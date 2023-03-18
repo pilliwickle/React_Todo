@@ -2,7 +2,7 @@ import Task from '../Task'
 import React from 'react'
 import PropTypes from 'prop-types'
 
-function TaskList({ todo, deletedTask, addItem, onCompletedTask, onEditingTask, editingTask }) {
+function TaskList({ todo, deletedTask, addItem, onCompletedTask, onEditingTask, editingTask, stopTimer, startTimer }) {
   const elements = todo.map((item) => {
     const { id } = item
 
@@ -21,6 +21,8 @@ function TaskList({ todo, deletedTask, addItem, onCompletedTask, onEditingTask, 
           onEditingTask(id)
         }}
         editingTask={editingTask}
+        stopTimer={() => stopTimer(id)}
+        startTimer={() => startTimer(id)}
       />
     )
   })

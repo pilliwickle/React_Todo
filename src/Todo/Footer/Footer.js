@@ -2,8 +2,14 @@ import TaskFilter from '../TasksFilter'
 import React from 'react'
 import PropTypes from 'prop-types'
 
-function createElementsFooter(tasks, hiddenTask) {
-  return tasks.map((item) => {
+const tasksFilter = [
+  { label: 'All', id: 'TF1', noted: 'selected' },
+  { label: 'Active', id: 'TF2', noted: null },
+  { label: 'Completed', id: 'TF3', noted: null },
+]
+
+function createElementsFooter(hiddenTask) {
+  return tasksFilter.map((item) => {
     const { id } = item
 
     return (
@@ -14,14 +20,22 @@ function createElementsFooter(tasks, hiddenTask) {
   })
 }
 
-function Footer({ countTasks, tasksFilter, clearCompletedTasks, hiddenTask }) {
+function Footer({ countTasks, clearCompletedTasks, hiddenTask }) {
   return (
     <footer className="footer">
       <span className="todo-count">{countTasks} items left</span>
-      <ul className="filters">{createElementsFooter(tasksFilter, hiddenTask)}</ul>
-      <button type="button" className="clear-completed" onClick={clearCompletedTasks}>
-        Clear completed
-      </button>
+      <ul className="filters">{createElementsFooter(hiddenTask)}</ul>
+      <label>
+        <button
+          type="button"
+          className="clear-completed"
+          onClick={clearCompletedTasks}
+          title="clear completed task"
+          aria-label="clear completed task"
+        >
+          Clear completed
+        </button>
+      </label>
     </footer>
   )
 }

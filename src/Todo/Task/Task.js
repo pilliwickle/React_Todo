@@ -1,48 +1,107 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
-export default class Task extends Component {
-  state = {
-    label: '',
-  }
+function Task({ itemTask, deletedTask, onCompletedTask, onEditingTask, editingTask, stopTimer, startTimer }) {
+  const [inputValue, setInputValue] = useState('')
+  const [inputCheck, setInputCheck] = useState(false)
 
-  onLabelChange = (e) => {
-    this.setState({
-      label: e.target.value,
-    })
-  }
+  const onInputValueChange = (e) => setInputValue(e.target.value)
 
-  onSubmit = (e) => {
+  function onSubmit(e) {
     e.preventDefault()
-    const { itemTask, editingTask } = this.props
-    const { label } = this.state
-    if (label !== '' && label.length >= 2) {
-      editingTask(itemTask.id, label)
+    if (inputValue.trim() !== '' && inputValue.length >= 2) {
+      editingTask(itemTask.id, inputValue)
     }
   }
 
-  render() {
-    const { itemTask, deletedTask, onCompletedTask, onEditingTask } = this.props
-    const { label, condition, visibility, timeInterval } = itemTask
-    return (
-      <li className={`${condition} ${visibility}`}>
-        <div className="view">
-          <input className="toggle" type="checkbox" id="inputCheckbox" onClick={onCompletedTask} />
-          <label>
-            <span className="description">{label}</span>
-            <span className="created">created {timeInterval}</span>
-          </label>
-          <button type="button" className="icon icon-edit" onClick={onEditingTask} aria-label="onEdit" />
-          <button type="button" className="icon icon-destroy" onClick={deletedTask} aria-label="onDestroy" />
-        </div>
-        {condition === 'editing' ? (
-          <form onSubmit={this.onSubmit}>
-            <input type="text" className="edit" defaultValue={label} onChange={this.onLabelChange} />
-          </form>
-        ) : null}
-      </li>
-    )
-  }
+  const { label, timerTime, timerOn, condition, visibility, timeInterval } = itemTask
+
+  const minute = Math.trunc(timerTime / 60)
+  const second = Math.floor(timerTime % 60)
+
+  return (
+    <li className={`${condition} ${visibility}`}>
+      <div className="view">
+        <input
+          className="toggle"
+          type="checkbox"
+          id="inputCheckbox"
+          checked={inputCheck}
+          onChange={() => {
+            onCompletedTask()
+            setInputCheck(!inputCheck)
+          }}
+        />
+        <label
+          onClick={(e) => {
+            if (e.target.nodeName === 'SPAN') {
+              onCompletedTask()
+              setInputCheck(!inputCheck)
+            }
+          }}
+          aria-hidden="true"
+        >
+          <span className="title" aria-hidden="true">
+            {label}
+          </span>
+          {timerTime !== 0 ? (
+            <span className="description">
+              <button
+                type="button"
+                className="icon icon-play"
+                title="play timer"
+                aria-label="play timer"
+                label="play"
+                onClick={() => {
+                  if (condition !== 'completed' && !timerOn) {
+                    startTimer()
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="icon icon-pause"
+                title="pause timer"
+                aria-label="pause timer"
+                label="pause"
+                onClick={stopTimer}
+              />
+              {minute}:{second < 10 ? `0${second}` : second}
+            </span>
+          ) : null}
+          <span className="description">created {timeInterval}</span>
+        </label>
+        <button
+          type="button"
+          className="icon icon-edit"
+          onClick={() => {
+            onEditingTask()
+          }}
+          title="on edit"
+          aria-label="on edit"
+        />
+        <button
+          type="button"
+          className="icon icon-destroy"
+          onClick={deletedTask}
+          title="on destroy"
+          aria-label="on destroy"
+        />
+      </div>
+      {condition === 'editing' ? (
+        <form onSubmit={onSubmit}>
+          <input
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
+            type="text"
+            className="edit"
+            defaultValue={label}
+            onChange={onInputValueChange}
+          />
+        </form>
+      ) : null}
+    </li>
+  )
 }
 
 Task.defaultProps = {
@@ -54,10 +113,12 @@ Task.defaultProps = {
 
 Task.propTypes = {
   itemTask: PropTypes.shape({
-    id: PropTypes.number,
+    id: PropTypes.string,
     label: PropTypes.string,
     condition: PropTypes.string,
     visibility: PropTypes.string,
     timeInterval: PropTypes.string,
   }),
 }
+
+export default Task
